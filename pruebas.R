@@ -7,12 +7,20 @@ msleep |>
   aes(awake, brainwt) +
   geom_point()
 
+iris |> 
+  ggplot() +
+  aes(Sepal.Length, Sepal.Width, color = Species) +
+  geom_point() +
+  scale_color_discrete() +
+  coord_cartesian(xlim = c(4, 9)) +
+  theme_minimal()
+
+# barras
+
+msleep |> count(order)
 
 
-
-
-
-
+element
 
 # líneas ----
 
@@ -135,6 +143,53 @@ display.brewer.all()
 library(ggthemes)
 
 
+p <- diamonds |> 
+  ggplot(aes(carat, price, shape = cut)) +
+  geom_point() + 
+  facet_wrap(~color)
+
+p
+
+p + theme(
+  plot.background=element_rect(fill="#b3e2cd"),
+  panel.background=element_rect(fill="#fdcdac"),
+  panel.border=element_rect(fill=NA,color="#cbd5e8",size=3),
+  legend.background=element_rect(fill="#f4cae4"),
+  legend.box.background=element_rect(fill="#e6f5c9"),
+  strip.background=element_rect(fill="#fff2ae")
+)
+
+
+
+# tortas ----
+df <- data.frame(value = c(10, 30, 32, 28),
+                 group = paste0("G", 1:4))
+
+df |> 
+  ggplot() +
+  aes(x = 1, y = value, fill = group) +
+  geom_col() +
+  coord_polar(theta = "y") +
+  scale_x_continuous(expand = expansion(c(2, 0))) +
+  theme_void()
+
+
+
+
+# tipografías ----
+
+library(showtext)
+font_add_google(name = "Montserrat")
+font_add_google(name = "Nunito")
+
+showtext_auto()
+
+iris |> 
+  ggplot() +
+  aes(Sepal.Length, Sepal.Width) +
+  geom_text(aes(label = Petal.Width), 
+            family = "Nunito",
+            check_overlap = T)
 
 # otros ----
 
