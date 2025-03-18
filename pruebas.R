@@ -19,6 +19,7 @@ iris |>
 
 msleep |> count(order)
 
+iris |> count(Species)
 
 element
 
