@@ -27,7 +27,7 @@ element
 
 ## temperatura ----
 
-temp <- readr::read_csv2("temperaturas_chile_unificadas.csv")
+temp <- readr::read_csv2("datos/temperaturas_chile_unificadas.csv")
 
 distinct(temp, nombre)
 
@@ -77,6 +77,34 @@ diamonds |>
   ggplot() +
   aes(price, carat, color = cut, size = carat) +
   geom_point()
+
+
+# otros ----
+
+## histograma ----
+temp |> 
+  ggplot() +
+  aes(t_max) +
+  geom_histogram()
+
+## densidad ----
+temp |> 
+  ggplot() +
+  aes(t_max, fill = zona_geografica, color = zona_geografica) +
+  geom_density(alpha = 0.4)
+
+
+## boxplot ----
+temp |> distinct(nombre)
+
+temp |> 
+  filter(nombre %in% c("Chacalluta, Arica Ap.",           
+ "Diego Aracena Iquique Ap.",
+ "El Loa, Calama Ad.")) |> 
+  ggplot() +
+  aes(nombre, t_max) +
+  geom_boxplot()
+
 
 
 # paletas ----
