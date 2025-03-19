@@ -12,6 +12,22 @@ Docente: _Bastián Olea Herrera._ baolea@uc.cl
 
 ## Contenidos
 
+### Clase 1
+- Introducción a {ggplot2}
+- Gráficos básicos
+  - Dispersión
+  - Histograma
+  - Densidad
+- Gráficos con datos de temperatura
+  - Dispersión
+  - Líneas
+- Gráficos con datos de delincuencia
+  - Barras verticales
+  - Barras horizontales
+    - Barras comparativas
+  - Temas y personalización
+- Cambiar tipografías
+
 
 ----
 
