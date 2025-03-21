@@ -1,3 +1,179 @@
+library(dplyr)
+library(ggplot2)
+
+# restantes de gráficos ----
+
+## boxplot ----
+temp |> distinct(nombre)
+
+temp |> 
+  filter(nombre %in% c("Chacalluta, Arica Ap.",           
+                       "Diego Aracena Iquique Ap.",
+                       "El Loa, Calama Ad.")) |> 
+  ggplot() +
+  aes(nombre, t_max) +
+  geom_boxplot()
+
+
+# tortas ----
+
+df <- data.frame(value = c(10, 30, 32, 28),
+                 group = paste0("G", 1:4))
+
+df |> 
+  ggplot() +
+  aes(x = 1, y = value, fill = group) +
+  geom_col() +
+  coord_polar(theta = "y") +
+  scale_x_continuous(expand = expansion(c(2, 0))) +
+  theme_void()
+
+pueblos <- readr::read_csv2("datos/pueblos_indigenas_chile.csv")
+
+
+pueblos |> 
+  group_by(pueblo) |> 
+  summarize(total = sum(n)) |> 
+  mutate(p = total/sum(total)) |> 
+  ggplot() +
+  aes(pueblo, p, fill = pueblo) +
+  geom_col()
+
+pueblos |> 
+  group_by(pueblo) |> 
+  summarize(total = sum(n)) |> 
+  mutate(p = total/sum(total)) |> 
+  ggplot() +
+  aes(1, p, fill = pueblo) +
+  geom_col() +
+  coord_polar(theta = "y")
+
+pueblos |> 
+  mutate(pueblo = ifelse(pueblo != "Mapuche", "Otros", "Mapuche")) |> 
+  group_by(pueblo) |> 
+  summarize(total = sum(n)) |> 
+  mutate(p = total/sum(total)) |> 
+  ggplot() +
+  aes(1, p, fill = pueblo) +
+  geom_col() +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = scales::percent(p)),
+            position = position_stack(0.5))
+
+
+
+# facet_wrap
+
+# guardar en loop
+
+
+# temperatura ----
+
+temp <- read_csv2("datos/temperaturas_chile_unificadas.csv")
+
+unique(temp$nombre)
+
+temp |> 
+  # filter(nombre == "Quinta Normal, Santiago") |>
+  filter(nombre == "General Freire, Curicó Ad.") |> 
+  filter(año >= 1980) |> 
+  group_by(año, mes) |> 
+  summarize(t_min = mean(t_min, na.rm = T),
+            t_max = mean(t_max, na.rm = T)) |> 
+  ggplot() +
+  aes(año, mes, fill = t_max) +
+  geom_tile() +
+  coord_equal(expand = F) +
+  scale_fill_viridis(option = "magma", begin = 0, name = NULL) +
+  theme_minimal() +
+  scale_y_continuous(breaks = 1:12) +
+  scale_x_continuous(breaks = c(seq(1980, 2020, 10), 2024)) +
+  labs(title = "Temperatura máxima mensual",
+       subtitle = "Estación meteorológica General Freire, Curicó") +
+  theme(legend.key.height = unit(13, "mm"),
+        legend.key.width = unit(2, "mm")) +
+  theme(panel.grid.major = element_blank()) +
+  ggview::canvas(11, 4)
+
+
+
+
+
+# paletas ----
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = x, size = carat) +
+  geom_point() +
+  scale_color_gradient(low = "purple4", high = "red3")
+
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = x, size = carat) +
+  geom_point() +
+  scale_color_gradient2(low = "purple4", mid = "cyan3", high = "deeppink", midpoint = 6.5)
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = x, size = carat) +
+  geom_point() +
+  scale_color_gradientn(colours = c("purple3", "yellow", "red", "pink", "blue"))
+
+
+
+### viridis ----
+library(viridis)
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = y, size = carat) +
+  geom_point() +
+  scale_color_viridis()
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = y, size = carat) +
+  geom_point() +
+  scale_color_viridis(option = "plasma", begin = 0.2, end = 0.8)
+
+
+### rcolorbrewer ----
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = y, size = carat) +
+  geom_point() +
+  scale_color_distiller(palette = "YlGnBu")
+
+
+### scico ----
+# install.packages("scico")
+library(scico)
+
+diamonds |> 
+  slice_sample(n = 1000) |>
+  ggplot() +
+  aes(price, carat, color = y, size = carat) +
+  geom_point() +
+  # scale_color_scico(palette = "acton", end = .8)
+  scale_color_scico(palette = "tokyo", end = .8)
+# scale_color_viridis_c(option = "plasma")
+
+scico_palette_show()
+scico_palette_names()
+
+
+
+
+
+# — -----------------
+
 library(gt)
 
 temp <- readr::read_csv2("datos/temperaturas_chile_unificadas.csv")
@@ -210,7 +386,7 @@ tab_header(title = "Temperatura anual", subtitle = "Cambios de temperatura anual
   # texto fuente
   tab_source_note("Fuente: Datos Abiertos del Estado, Chile")
 
-# estilo de titulos de variables
+# estilo de títulos de variables
 tabla_1 |> 
   tab_style(style = cell_text(weight = "bold"),
             locations = cells_column_labels())
@@ -242,115 +418,115 @@ tab_options(column_labels.border.top.color = color_fondo,
               table.font.color.light = color_texto,
               table_body.hlines.color = color_tema)
 
-
-## líneas y bordes ----
-
-## tipografías ----
-
-
-tribble(~icono, ~titulo, ~explicacion,
-        "star", "Recientes", "Código o datos recientemente actualizados",
-        "arrow-up", "Popular", "Conjunto de datos popular en GitHub",
-        "circle-down", "Bajar", "Presionar para descarga directa del dato",
-        "window-restore", "App", "Presionar para visitar aplicación o visualizador",
-        "venus", "Género", "Datos desagregados por género",
-        "map", "Comunas", "Datos desagregados por comunas",
-        "calendar", "Años", "Temporalidad anual de las observaciones",
-        "calendar-days", "Meses", "Temporalidad mensual de las observaciones") |> 
-  gt() |> 
-  fmt_icon(columns = icono, fill_color = color_enlaces) |> 
-  cols_align(columns = icono, "center") |> 
-  cols_label(icono = "", titulo = "", explicacion = "") |> 
-  tab_style(style = cell_text(weight = "bold"),
-            locations = cells_body(columns = titulo)) |> 
-  # eliminar bordes de arriba y abajo de la tabla
-  tab_options(column_labels.border.top.color = color_fondo,
-              column_labels.border.bottom.color = color_fondo,
-              table_body.border.bottom.color = color_fondo) |>
-  # tema de la tabla
-  tab_options(table.background.color = color_fondo,
-              table.font.color = color_texto,
-              table.font.color.light = color_texto,
-              table_body.hlines.color = color_fondo)
-
-
-
-tabla <- datos |> 
-  arrange(desc(popular), desc(fecha)) |>
-  relocate(reciente, popular, bajar, .after = etiquetas) |>
-  mutate(titulo = ifelse(!is.na(titulo_repo), titulo_repo, titulo)) |> 
-  # formato columnas gt
-  rowwise() |>
-  mutate(etiquetas = list(discard(etiquetas, etiquetas %in% c("data", "shiny", "r", "app", "tiempo", "comunas", "chile", "meses")))) |> 
-  # columnas
-  mutate(tiempo = case_match(tiempo,
-                             "anual" ~ "calendar",
-                             "mensual" ~ "calendar-days")) |> 
-  rowwise() |>
-  mutate(etiquetas = col_tag(etiquetas),
-         titulo = col_link(titulo, enlace),
-         # aplicación = col_icon(aplicación, "window-restore"),
-         app = col_icon_link(app, "window-restore", color = color_enlaces, link = enlace_app),
-         bajar = col_icon_link(bajar, "circle-down", color = color_enlaces, link = descarga),
-         popular = col_icon(popular, "arrow-up", color = color_enlaces),
-         genero = col_icon(genero, "venus", color = color_enlaces),
-         comunas = col_icon(comunas, "map", color = color_enlaces),
-         reciente = col_icon(reciente, "star", color = color_enlaces)) |> 
-  ungroup()
-
-
-tabla |> 
-  # rowwise() |> 
-  gt() |> 
-  fmt_icon(columns = tiempo, fill_color = color_enlaces) |>
-  sub_missing(columns = everything(), missing_text = "") |>
-  cols_align(columns = titulo, "right") |>
-  cols_align(columns = etiquetas, "left") |>
-  cols_align(columns = c(genero, comunas, app, reciente, popular, tiempo),
-             "center") |>
-  cols_hide(c(enlace, descarga, estrellas, fecha, enlace_app, titulo_repo)) |>
-  fmt_markdown(columns = titulo) |> 
-  fmt_markdown(columns = etiquetas) |> 
-  # fmt_markdown(columns = c(genero, comunas, reciente, popular)) |>
-  fmt_markdown(columns = genero, rows = genero != "") |> 
-  fmt_markdown(columns = comunas, rows = comunas != "") |> 
-  fmt_markdown(columns = reciente, rows = reciente != "") |> 
-  fmt_markdown(columns = popular, rows = popular != "") |>
-  fmt_markdown(columns = app, rows = app != "") |> 
-  fmt_markdown(columns = bajar, rows = bajar != "") |> 
-  cols_width(#descripcion ~ "40%",
-    etiquetas ~ "18%",
-    genero ~ "5%",
-    comunas ~ "5%",
-    reciente ~ "5%",
-    popular ~ "5%",
-    app ~ "5%",
-    bajar ~ "5%"
-  ) |>
-  # centrar verticalmente texto de celdas
-  tab_style(style = "vertical-align:middle",
-            locations = cells_body(columns = everything())
-  ) |>
-  tab_style(style = cell_text(color = color_texto, weight = "bold"),
-            locations = cells_body(columns = titulo)) |>
-  cols_label(titulo = "",
-             descripcion = "",
-             etiquetas = "Temas",
-             reciente = "Reciente",
-             bajar = "Bajar",
-             popular = "Popular",
-             genero = "Género",
-             app = "App",
-             comunas = "Comunas",
-             tiempo = "Tiempo") |>
-  # cols_merge(c(reciente, popular, app, genero, comunas, tiempo)) |> 
-  # eliminar bordes de arriba y abajo de la tabla
-  tab_options(column_labels.border.top.color = color_fondo,
-              column_labels.border.bottom.color = color_fondo,
-              table_body.border.bottom.color = color_fondo,
-              table.additional_css = paste0("a {color:", color_enlaces, "!important;}")) |>
-  # tema de la tabla
-  tab_options(table.background.color = color_fondo,
-              table.font.color = color_texto,
-              table.font.color.light = color_texto,
-              table_body.hlines.color = color_destacado_2)
+# 
+# ## líneas y bordes ----
+# 
+# ## tipografías ----
+# 
+# 
+# tribble(~icono, ~titulo, ~explicacion,
+#         "star", "Recientes", "Código o datos recientemente actualizados",
+#         "arrow-up", "Popular", "Conjunto de datos popular en GitHub",
+#         "circle-down", "Bajar", "Presionar para descarga directa del dato",
+#         "window-restore", "App", "Presionar para visitar aplicación o visualizador",
+#         "venus", "Género", "Datos desagregados por género",
+#         "map", "Comunas", "Datos desagregados por comunas",
+#         "calendar", "Años", "Temporalidad anual de las observaciones",
+#         "calendar-days", "Meses", "Temporalidad mensual de las observaciones") |> 
+#   gt() |> 
+#   fmt_icon(columns = icono, fill_color = color_enlaces) |> 
+#   cols_align(columns = icono, "center") |> 
+#   cols_label(icono = "", titulo = "", explicacion = "") |> 
+#   tab_style(style = cell_text(weight = "bold"),
+#             locations = cells_body(columns = titulo)) |> 
+#   # eliminar bordes de arriba y abajo de la tabla
+#   tab_options(column_labels.border.top.color = color_fondo,
+#               column_labels.border.bottom.color = color_fondo,
+#               table_body.border.bottom.color = color_fondo) |>
+#   # tema de la tabla
+#   tab_options(table.background.color = color_fondo,
+#               table.font.color = color_texto,
+#               table.font.color.light = color_texto,
+#               table_body.hlines.color = color_fondo)
+# 
+# 
+# 
+# tabla <- datos |> 
+#   arrange(desc(popular), desc(fecha)) |>
+#   relocate(reciente, popular, bajar, .after = etiquetas) |>
+#   mutate(titulo = ifelse(!is.na(titulo_repo), titulo_repo, titulo)) |> 
+#   # formato columnas gt
+#   rowwise() |>
+#   mutate(etiquetas = list(discard(etiquetas, etiquetas %in% c("data", "shiny", "r", "app", "tiempo", "comunas", "chile", "meses")))) |> 
+#   # columnas
+#   mutate(tiempo = case_match(tiempo,
+#                              "anual" ~ "calendar",
+#                              "mensual" ~ "calendar-days")) |> 
+#   rowwise() |>
+#   mutate(etiquetas = col_tag(etiquetas),
+#          titulo = col_link(titulo, enlace),
+#          # aplicación = col_icon(aplicación, "window-restore"),
+#          app = col_icon_link(app, "window-restore", color = color_enlaces, link = enlace_app),
+#          bajar = col_icon_link(bajar, "circle-down", color = color_enlaces, link = descarga),
+#          popular = col_icon(popular, "arrow-up", color = color_enlaces),
+#          genero = col_icon(genero, "venus", color = color_enlaces),
+#          comunas = col_icon(comunas, "map", color = color_enlaces),
+#          reciente = col_icon(reciente, "star", color = color_enlaces)) |> 
+#   ungroup()
+# 
+# 
+# tabla |> 
+#   # rowwise() |> 
+#   gt() |> 
+#   fmt_icon(columns = tiempo, fill_color = color_enlaces) |>
+#   sub_missing(columns = everything(), missing_text = "") |>
+#   cols_align(columns = titulo, "right") |>
+#   cols_align(columns = etiquetas, "left") |>
+#   cols_align(columns = c(genero, comunas, app, reciente, popular, tiempo),
+#              "center") |>
+#   cols_hide(c(enlace, descarga, estrellas, fecha, enlace_app, titulo_repo)) |>
+#   fmt_markdown(columns = titulo) |> 
+#   fmt_markdown(columns = etiquetas) |> 
+#   # fmt_markdown(columns = c(genero, comunas, reciente, popular)) |>
+#   fmt_markdown(columns = genero, rows = genero != "") |> 
+#   fmt_markdown(columns = comunas, rows = comunas != "") |> 
+#   fmt_markdown(columns = reciente, rows = reciente != "") |> 
+#   fmt_markdown(columns = popular, rows = popular != "") |>
+#   fmt_markdown(columns = app, rows = app != "") |> 
+#   fmt_markdown(columns = bajar, rows = bajar != "") |> 
+#   cols_width(#descripcion ~ "40%",
+#     etiquetas ~ "18%",
+#     genero ~ "5%",
+#     comunas ~ "5%",
+#     reciente ~ "5%",
+#     popular ~ "5%",
+#     app ~ "5%",
+#     bajar ~ "5%"
+#   ) |>
+#   # centrar verticalmente texto de celdas
+#   tab_style(style = "vertical-align:middle",
+#             locations = cells_body(columns = everything())
+#   ) |>
+#   tab_style(style = cell_text(color = color_texto, weight = "bold"),
+#             locations = cells_body(columns = titulo)) |>
+#   cols_label(titulo = "",
+#              descripcion = "",
+#              etiquetas = "Temas",
+#              reciente = "Reciente",
+#              bajar = "Bajar",
+#              popular = "Popular",
+#              genero = "Género",
+#              app = "App",
+#              comunas = "Comunas",
+#              tiempo = "Tiempo") |>
+#   # cols_merge(c(reciente, popular, app, genero, comunas, tiempo)) |> 
+#   # eliminar bordes de arriba y abajo de la tabla
+#   tab_options(column_labels.border.top.color = color_fondo,
+#               column_labels.border.bottom.color = color_fondo,
+#               table_body.border.bottom.color = color_fondo,
+#               table.additional_css = paste0("a {color:", color_enlaces, "!important;}")) |>
+#   # tema de la tabla
+#   tab_options(table.background.color = color_fondo,
+#               table.font.color = color_texto,
+#               table.font.color.light = color_texto,
+#               table_body.hlines.color = color_destacado_2)
